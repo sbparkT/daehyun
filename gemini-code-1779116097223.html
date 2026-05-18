@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>우리반 실시간 급식 조회 🍚</title>
+    <title> 대현고 급식 조회 🍚</title>
     <style>
         /* 모던 & 깔끔한 폰트와 배경 세팅 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -140,7 +140,7 @@
 <body>
 
 <div class="container">
-    <h1>우리반 급식 실시간 조회 🍽️</h1>
+    <h1>급식 실시간 조회 🍽️</h1>
     
     <div class="search-box">
         <input type="date" id="meal-date">
@@ -184,7 +184,7 @@
                     let menuHTML = menuRaw.map(item => {
                         let cleanItem = item.trim();
                         // 숫자와 마침표 조합(알레르기 번호)을 찾아서 괄호()로 감쌉니다.
-                        let formattedItem = cleanItem.replace(/([0-9.]+)/g, '<span class="allergy-num">($1)</span>');
+                        let formattedItem = cleanItem.replace(/[0-9.]+/g, '<span class="allergy-num">($1)</span>');
                         return `<div class="menu-item">• ${formattedItem}</div>`;
                     }).join('');
                     
