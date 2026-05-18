@@ -184,7 +184,7 @@
                     let menuHTML = menuRaw.map(item => {
                         let cleanItem = item.trim();
                         // 숫자와 마침표 조합(알레르기 번호)을 찾아서 괄호()로 감쌉니다.
-                        let formattedItem = cleanItem.replace(/[0-9.]+/g, '<span class="allergy-num">($1)</span>');
+                        let formattedItem = cleanItem.replace(/([0-9.]+)/g, '<span class="allergy-num">$1</span>');
                         return `<div class="menu-item">• ${formattedItem}</div>`;
                     }).join('');
                     
