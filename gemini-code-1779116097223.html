@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리반 실시간 급식 조회 🍚</title>
+    <style>
+        /* 모던 & 깔끔한 폰트와 배경 세팅 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* 매끄러운 카드 디자인 */
+        .container { 
+            max-width: 450px; 
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 { 
+            color: #2d3748; 
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px; 
+            letter-spacing: -0.5px;
+        }
+        
+        /* 입력창 및 버튼 그룹 가로 배치 */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        
+        input[type="date"] { 
+            flex: 1;
+            padding: 12px 16px; 
+            font-size: 15px; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            background-color: #f8fafc;
+            color: #4a5568;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="date"]:focus {
+            border-color: #4ed8a5;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(78, 216, 165, 0.2);
+        }
+        
+        button { 
+            padding: 12px 24px; 
+            font-size: 15px; 
+            font-weight: 500;
+            background-color: #319795; 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        
+        button:hover { 
+            background-color: #2c7a7b;
+            transform: translateY(-1px);
+        }
+        
+        /* 결과 화면 래퍼 */
+        #meal-result { 
+            text-align: left; 
+            padding: 20px; 
+            border-radius: 16px; 
+            background-color: #f8fafc; 
+            min-height: 120px; 
+            border: 1px solid #edf2f7;
+            transition: all 0.3s ease;
+        }
+        
+        .meal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        
+        .menu-item { 
+            margin-bottom: 10px; 
+            font-size: 15px; 
+            color: #4a5568; 
+            line-height: 1.5;
+        }
+        
+        .allergy-num {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-left: 6px;
+        }
+        
+        .info-text { 
+            font-size: 13px; 
+            color: #718096; 
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        /* 하단 알레르기 안내판 */
+        .allergy-guide {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #edf2f7;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.6;
+            text-align: left;
+        }
+        
+        .loading { color: #a0aec0; font-style: italic; text-align: center; padding-top: 30px; }
+        .no-data { color: #e53e3e; text-align: center; padding-top: 30px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>우리반 급식 실시간 조회 🍽️</h1>
+    
+    <div class="search-box">
+        <input type="date" id="meal-date">
+        <button onclick="getMeal()">조회</button>
+    </div>
+
+    <div id="meal-result">
+        <p style="color: #a0aec0; text-align: center; padding-top: 30px;">날짜를 선택하고 조회해 주세요!</p>
+    </div>
+</div>
+
+<script>
+    // 시작 시 오늘 날짜 세팅
+    document.getElementById('meal-date').value = new Date().toISOString().substring(0, 10);
+
+    function getMeal() {
+        const resultDiv = document.getElementById('meal-result');
+        const selectedDate = document.getElementById('meal-date').value.replace(/-/g, "");
+        
+        if(!selectedDate) {
+            alert("날짜를 선택해 주세요!");
+            return;
+        }
+
+        resultDiv.innerHTML = '<p class="loading">급식 정보를 불러오는 중...</p>';
+
+        const apiKey = "4ac7b4622a4848fb8e1f0be0e018125e";
+        const atptCode = "H10";
+        const schoolCode = "7480093";
+        
+        const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${apiKey}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE=${atptCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${selectedDate}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.mealServiceDietInfo) {
+                    const row = data.mealServiceDietInfo[1].row[0];
+                    
+                    // 나이스 메뉴 줄바꿈 처리 및 알레르기 번호 포맷 변경 예: "밥1.2.3." -> "밥 <span class='allergy-num'>(1.2.3.)</span>"
+                    let menuRaw = row.DDISH_NM.split('<br/>');
+                    let menuHTML = menuRaw.map(item => {
+                        let cleanItem = item.trim();
+                        // 숫자와 마침표 조합(알레르기 번호)을 찾아서 괄호()로 감쌉니다.
+                        let formattedItem = cleanItem.replace(/([0-9.]+)/g, '<span class="allergy-num">($1)</span>');
+                        return `<div class="menu-item">• ${formattedItem}</div>`;
+                    }).join('');
+                    
+                    // 결과 화면 구성 (알레르기 정보 가이드라인 하단 배치)
+                    resultDiv.innerHTML = `
+                        <div class="meal-title">✨ ${row.MMEAL_SC_NM} 메뉴</div>
+                        ${menuHTML}
+                        <div class="info-text">📊 칼로리 : ${row.CAL_INFO}</div>
+                        
+                        <div class="allergy-guide">
+                            <strong>[알레르기 유발식품 안내]</strong><br>
+                            ①난류 ②우유 ③메밀 ④땅콩 ⑤대두 ⑥밀 ⑦고등어 ⑧게 ⑨새우 ⑩돼지고기 ⑪복숭아 ⑫토마토 ⑬아황산류 ⑭호두 ⑮닭고기 ⑯쇠고기 ⑰오징어 ⑱조개류(굴,전복,홍합 포함) ⑲잣
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p class="no-data">📅 해당 날짜에는 급식 정보가 없습니다.</p>';
+                }
+            })
+            .catch(error => {
+                console.error("에러:", error);
+                resultDiv.innerHTML = '<p class="no-data">❌ 데이터를 가져오지 못했습니다.</p>';
+            });
+    }
+</script>
+
+</body>
+</html>
